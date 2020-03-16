@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PostsAPI.Application.Dtos;
+using PostsAPI.Application.Exceptions;
 using PostsAPI.Application.Interfaces;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PostsAPI.Infrastructure.Identity
@@ -17,7 +19,7 @@ namespace PostsAPI.Infrastructure.Identity
 
         public async Task<string> LogInAsync(AuthDto authDto)
         {
-            var user = await _userManager.Users.FirstAsync(u => u.Email == authDto.Email);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == authDto.Email);
             var isValid = await _userManager.CheckPasswordAsync(user, authDto.Password);
 
             if (!isValid)
@@ -26,7 +28,7 @@ namespace PostsAPI.Infrastructure.Identity
             return user.Id;
         }
 
-        public async Task<object> CreateUserAsync(AuthDto authDto)
+        public async Task CreateUserAsync(AuthDto authDto)
         {
             var user = new ApplicationUser
             {
@@ -35,7 +37,11 @@ namespace PostsAPI.Infrastructure.Identity
             };
 
             var result = await _userManager.CreateAsync(user, authDto.Password);
-            return result;
+
+            if (!result.Succeeded)
+            {
+                throw new BadRequestException(result.Errors.Select(e => e.Description).ToList());
+            }
         }
 
         public async Task<object> CreateUserAsync(string userName, string password)

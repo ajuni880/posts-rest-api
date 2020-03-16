@@ -49,10 +49,6 @@ namespace PostsAPI.Web.Controllers
                 return BadRequest();
 
             var post = await _postService.UpdateAsync(id, postDto);
-
-            if (post == null)
-                return NotFound(null);
-
             return Ok(post);
         }
 

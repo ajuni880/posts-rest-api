@@ -8,7 +8,7 @@ namespace PostsAPI.Application.Interfaces
 {
     public interface IIdentityService
     {
-        Task<object> CreateUserAsync(AuthDto authDto);
+        Task CreateUserAsync(AuthDto authDto);
         Task<string> LogInAsync(AuthDto authDto);
     }
 }

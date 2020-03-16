@@ -34,15 +34,26 @@ namespace PostsAPI.Web.Middlewares
         private async Task HandleException(HttpContext context, Exception ex)
         {
             var statusCode = HttpStatusCode.InternalServerError;
+            var result = string.Empty;
 
             if (ex is NotFoundException)
             {
                 statusCode = HttpStatusCode.NotFound;
+            } 
+            else if (ex is BadRequestException badEx)
+            {
+                statusCode = HttpStatusCode.BadRequest;
+                result = JsonConvert.SerializeObject(new { message = badEx.Message, errors = badEx.Errors });
+            }
+
+            if (string.IsNullOrEmpty(result))
+            {
+                result = JsonConvert.SerializeObject(new { message = ex.Message });
             }
 
             context.Response.Headers.Add("content-type", "application/json");
             context.Response.StatusCode = (int)statusCode;
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = ex.Message }));
+            await context.Response.WriteAsync(result);
         }
     }
 
