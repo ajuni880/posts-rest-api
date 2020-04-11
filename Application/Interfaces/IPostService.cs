@@ -8,7 +8,8 @@ namespace PostsAPI.Application.Interfaces
     public interface IPostService
     {
         Task<Post> GetAsync(int id);
-        IEnumerable<Post> ListUserPosts();
+        Task<IEnumerable<Post>> ListAsync();
+        IEnumerable<Post> ListUserPosts(string userId);
         Task<int> CreateAsync(PostDto post);
         Task<Post> UpdateAsync(int id, PostDto post);
         Task DeleteAsync(int id);

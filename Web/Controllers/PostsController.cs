@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 namespace PostsAPI.Web.Controllers
 {
     [ApiController]
-    [Authorize]
     [Route("api/[controller]")]
     public class PostsController : ControllerBase
     {
@@ -21,21 +20,22 @@ namespace PostsAPI.Web.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Post> GetUserPosts()
+        public async Task<IEnumerable<Post>> GetAllPosts(string userId)
         {
-            return _postService.ListUserPosts();
+            if (!string.IsNullOrEmpty(userId))
+                return _postService.ListUserPosts(userId);
+                
+            return await _postService.ListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Post>> GetPost(int id)
+        public async Task<Post> GetPost(int id)
         {
-            var post = await _postService.GetAsync(id);
-            if (post == null)
-                return NotFound(null);
-            return Ok(post);
+            return await _postService.GetAsync(id);
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] PostDto postDto)
         {
             var id = await _postService.CreateAsync(postDto);
@@ -43,6 +43,7 @@ namespace PostsAPI.Web.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult<Post>> Update([FromBody] PostDto postDto, int id)
         {
             if (id != postDto.Id)
@@ -53,6 +54,7 @@ namespace PostsAPI.Web.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
             await _postService.DeleteAsync(id);

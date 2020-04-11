@@ -39,9 +39,14 @@ namespace PostsAPI.Application.Services
             return await _postRepository.FindAsync(id);
         }
 
-        public IEnumerable<Post> ListUserPosts()
+        public async Task<IEnumerable<Post>> ListAsync()
         {
-            return _postRepository.ListUserPosts(_claimsService.GetUserId());
+            return await _postRepository.ListAsync();
+        }
+
+        public IEnumerable<Post> ListUserPosts(string userId)
+        {
+            return _postRepository.ListUserPosts(userId);
         }
 
         public async Task<int> CreateAsync(PostDto postDto)
